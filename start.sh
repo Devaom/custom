@@ -21,6 +21,15 @@ echo " - HOSTNAME: $(hostname)"
 echo " - DNS_NAMESERVER:" $(cat /etc/resolv.conf | grep 'nameserver')
 echo -e "--------------------------------------------------------------\n"
 
+if [ $(yum list installed | grep vim | awk '{print $1}' | wc -w) -le 1 ]; then
+	echo -e "It is assumed that you have minimal-vim or classic vi. (Installed: $(yum list installed | grep vim | awk '{print $1}'))\n"
+	echo "Do you want to install vim-enhaced? [y/n]: "
+	read REPLY
+	if [ $REPLY	== "y" ]; then
+		yum install vim-enhanced	
+	fi
+fi
+
 function FUNC_SET_INDIVIDUAL_VIMRC(){
 	local USER_LIST=$*
 	for user in $USER_LIST; do
@@ -49,22 +58,25 @@ function FUNC_SET_INDIVIDUAL_VIMRC(){
 
 function FUNC_SET_GLOBAL_BASHRC(){
 	if [ $(cat /etc/bashrc | grep "alias vi" | wc -m) -eq 0 ]; then
-		echo "/etc/bashrc has not 'alias vi'. adding alias.."
-		echo alias vi=vim >> /etc/bashrc
+		echo "DEPRECATED"
+		#echo "/etc/bashrc has not 'alias vi'. adding alias.."
+		#echo alias vi=vim >> /etc/bashrc
 	fi
 }
 
 while : # infinite loop
 do
+	echo " 1. FUNC_SET_GLOBAL_BASHRC"
+	echo " 2. FUNC_SET_INDIVIDUAL_VIMRC"
 	echo -n '$ '
 	read TOOL_CMD
-
 	case $TOOL_CMD in	
-		FUNC_SET_GLOBAL_BASHRC)
+		1 | FUNC_SET_GLOBAL_BASHRC)
 			FUNC_SET_GLOBAL_BASHRC;;
-		FUNC_SET_INDIVIDUAL_VIMRC)
+		2 | FUNC_SET_INDIVIDUAL_VIMRC)
 			FUNC_SET_INDIVIDUAL_VIMRC $ALL_USER_LIST;;
 		exit | EXIT | Exit)
+			echo Bye.
 			exit 0;;
 		*)
 			echo What are you doing..?;;
